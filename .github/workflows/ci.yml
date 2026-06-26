@@ -1,0 +1,88 @@
+name: Pipeline CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Run tests and quality checks
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: pipeline_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: flight_warehouse_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Create .env for tests
+        run: |
+          cp config/.env.example config/.env
+          sed -i 's/your_secure_password_here/test_password/' config/.env
+          sed -i 's/flight_warehouse/flight_warehouse_test/' config/.env
+
+      - name: Set up test database
+        env:
+          PGPASSWORD: test_password
+        run: |
+          psql -h localhost -U pipeline_user -d flight_warehouse_test \
+            -f sql/schema/02_create_tables.sql
+          psql -h localhost -U pipeline_user -d flight_warehouse_test \
+            -f sql/schema/03_create_indexes.sql
+
+      - name: Run tests with coverage
+        run: |
+          pytest tests/ -v \
+            --cov=src \
+            --cov-report=term-missing \
+            --cov-report=xml \
+            --cov-fail-under=80
+
+      - name: Upload coverage report
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+
+      - name: Lint with flake8
+        run: |
+          pip install flake8
+          flake8 src/ --max-line-length=100 --ignore=E501,W503
+
+  validate-sql:
+    name: Validate SQL syntax
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check SQL files exist and are non-empty
+        run: |
+          for f in sql/schema/*.sql sql/queries/*.sql sql/views/*.sql; do
+            if [ ! -s "$f" ]; then
+              echo "Empty or missing SQL file: $f"
+              exit 1
+            fi
+            echo "OK: $f"
+          done

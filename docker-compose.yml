@@ -1,0 +1,135 @@
+version: '3.8'
+
+# ============================================================
+# docker-compose.yml
+# Local development environment for the flight delay pipeline.
+# Starts: PostgreSQL 15 + Apache Airflow 2.8
+#
+# Usage:
+#   docker-compose up -d          # Start all services
+#   docker-compose logs -f airflow-webserver  # Watch logs
+#   docker-compose down -v        # Stop and remove volumes
+# ============================================================
+
+x-airflow-common: &airflow-common
+  image: apache/airflow:2.8.0
+  environment:
+    &airflow-common-env
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://pipeline_user:pipeline_pass@postgres/airflow_db
+    AIRFLOW__CORE__FERNET_KEY: ''
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
+    AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+    AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth'
+    # Project environment variables
+    DB_HOST: postgres
+    DB_PORT: 5432
+    DB_NAME: flight_warehouse
+    DB_USER: pipeline_user
+    DB_PASSWORD: pipeline_pass
+    AVIATIONSTACK_API_KEY: ${AVIATIONSTACK_API_KEY}
+    _PIP_ADDITIONAL_REQUIREMENTS: >-
+      pandas==2.1.4
+      psycopg2-binary==2.9.9
+      sqlalchemy==2.0.23
+      great-expectations==0.18.8
+      requests==2.31.0
+      loguru==0.7.2
+      tqdm==4.66.1
+      pyarrow==14.0.1
+  volumes:
+    - ./dags:/opt/airflow/dags
+    - ./src:/opt/airflow/src
+    - ./config:/opt/airflow/config
+    - ./sql:/opt/airflow/sql
+    - ./logs:/opt/airflow/logs
+    - ./data:/opt/airflow/data
+  user: "${AIRFLOW_UID:-50000}:0"
+  depends_on:
+    postgres:
+      condition: service_healthy
+
+services:
+
+  # ── PostgreSQL ──────────────────────────────────────────────
+  postgres:
+    image: postgres:15
+    container_name: flight_pipeline_postgres
+    environment:
+      POSTGRES_USER: pipeline_user
+      POSTGRES_PASSWORD: pipeline_pass
+      POSTGRES_DB: airflow_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql/schema:/docker-entrypoint-initdb.d  # Auto-run on first start
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "pipeline_user"]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+
+  # ── Airflow Init (runs once to set up the database) ─────────
+  airflow-init:
+    <<: *airflow-common
+    container_name: airflow_init
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        airflow db migrate
+        airflow users create \
+          --username admin \
+          --password admin \
+          --firstname Admin \
+          --lastname User \
+          --role Admin \
+          --email admin@example.com
+    environment:
+      <<: *airflow-common-env
+      _AIRFLOW_DB_MIGRATE: 'true'
+    restart: on-failure
+
+  # ── Airflow Webserver (UI at http://localhost:8080) ──────────
+  airflow-webserver:
+    <<: *airflow-common
+    container_name: airflow_webserver
+    command: webserver
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+
+  # ── Airflow Scheduler ────────────────────────────────────────
+  airflow-scheduler:
+    <<: *airflow-common
+    container_name: airflow_scheduler
+    command: scheduler
+    healthcheck:
+      test: ["CMD-SHELL", 'airflow jobs check --job-type SchedulerJob --hostname "$${HOSTNAME}"']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+
+volumes:
+  postgres_data:
+
+# ============================================================
+# After starting: access Airflow UI at http://localhost:8080
+# Login: admin / admin
+# ============================================================

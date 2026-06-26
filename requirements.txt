@@ -1,0 +1,33 @@
+# Core data processing
+pandas==2.1.4
+numpy==1.26.2
+pyarrow==14.0.1
+
+# Database
+psycopg2-binary==2.9.9
+sqlalchemy==2.0.23
+
+# Airflow (install separately via pip install apache-airflow==2.8.0)
+# apache-airflow==2.8.0
+
+# Data quality
+great-expectations==0.18.8
+
+# HTTP / API
+requests==2.31.0
+python-dotenv==1.0.0
+
+# Scheduling (lightweight alternative to Airflow)
+schedule==1.2.1
+
+# Logging and monitoring
+loguru==0.7.2
+
+# Testing
+pytest==7.4.3
+pytest-cov==4.1.0
+
+# Utilities
+tqdm==4.66.1
+click==8.1.7
+pyyaml==6.0.1
