@@ -8,7 +8,7 @@
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'pipeline_user') THEN
-        CREATE ROLE pipeline_user WITH LOGIN PASSWORD 'change_this_password';
+        CREATE ROLE pipeline_user WITH LOGIN PASSWORD 'flightdb';
     END IF;
 END
 $$;
@@ -17,16 +17,12 @@ $$;
 CREATE DATABASE flight_warehouse
     OWNER = pipeline_user
     ENCODING = 'UTF8'
-    LC_COLLATE = 'en_US.UTF-8'
-    LC_CTYPE = 'en_US.UTF-8'
     TEMPLATE = template0;
 
 -- Create separate Airflow metadata database
 CREATE DATABASE airflow_db
     OWNER = pipeline_user
     ENCODING = 'UTF8'
-    LC_COLLATE = 'en_US.UTF-8'
-    LC_CTYPE = 'en_US.UTF-8'
     TEMPLATE = template0;
 
 GRANT ALL PRIVILEGES ON DATABASE flight_warehouse TO pipeline_user;
