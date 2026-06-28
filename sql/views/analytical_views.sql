@@ -83,9 +83,9 @@ SELECT
     ROUND(AVG(f.arrival_delay_min) FILTER (
         WHERE NOT f.is_cancelled), 2)                           AS avg_delay_min,
     ROUND(PERCENTILE_CONT(0.5) WITHIN GROUP (
-        ORDER BY f.arrival_delay_min), 2)                       AS median_delay_min,
+        ORDER BY f.arrival_delay_min)::numeric, 2)              AS median_delay_min,
     ROUND(PERCENTILE_CONT(0.9) WITHIN GROUP (
-        ORDER BY f.arrival_delay_min), 2)                       AS p90_delay_min,
+        ORDER BY f.arrival_delay_min)::numeric, 2)              AS p90_delay_min,
     ROUND(AVG(f.distance_miles), 0)                             AS avg_distance_miles,
     COUNT(DISTINCT f.carrier_code)                              AS carrier_count
 FROM warehouse.fact_flights f

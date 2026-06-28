@@ -131,9 +131,9 @@ def download_month(year: int, month: int, force: bool = False) -> Path | None:
         logger.error(f"No CSV files found in zip: {zip_path}")
         return None
 
-    # Rename to consistent filename
+    # Rename to consistent filename (replace() works on Windows even if dest exists)
     extracted_csv = csv_files[0]
-    extracted_csv.rename(csv_path)
+    extracted_csv.replace(csv_path)
 
     # Clean up zip file
     zip_path.unlink()
