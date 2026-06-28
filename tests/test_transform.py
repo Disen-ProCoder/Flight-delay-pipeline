@@ -40,35 +40,35 @@ from src.quality.data_quality_checks import (
 
 @pytest.fixture
 def sample_bts_raw():
-    """Raw BTS-style DataFrame (before any transformations)."""
+    """Raw BTS-style DataFrame using 2023 column names (before any transformations)."""
     return pd.DataFrame({
-        "FL_DATE":               ["2023-01-15", "2023-01-15", "2023-01-16"],
-        "OP_UNIQUE_CARRIER":     ["AA",          "DL",         "UA"],
-        "OP_CARRIER_FL_NUM":     ["100",         "200",        "300"],
-        "ORIGIN":                ["JFK",         "LAX",        "ORD"],
-        "DEST":                  ["LAX",         "JFK",        "SFO"],
-        "CRS_DEP_TIME":          ["0800",        "1200",       "1600"],
-        "DEP_TIME":              ["0815",        "1155",       "1630"],
-        "DEP_DELAY":             ["15.0",        "-5.0",       "30.0"],
-        "CRS_ARR_TIME":          ["1100",        "2000",       "1900"],
-        "ARR_TIME":              ["1120",        "1950",       "1945"],
-        "ARR_DELAY":             ["20.0",        "-10.0",      "45.0"],
-        "CANCELLED":             ["0.0",         "0.0",        "0.0"],
-        "CANCELLATION_CODE":     [None,          None,         None],
-        "DIVERTED":              ["0.0",         "0.0",        "0.0"],
-        "CRS_ELAPSED_TIME":      ["180.0",       "300.0",      "180.0"],
-        "ACTUAL_ELAPSED_TIME":   ["185.0",       "295.0",      "195.0"],
-        "AIR_TIME":              ["160.0",       "275.0",      "170.0"],
-        "DISTANCE":              ["2475.0",      "2475.0",     "1846.0"],
-        "CARRIER_DELAY":         [None,          None,         "45.0"],
-        "WEATHER_DELAY":         [None,          None,         "0.0"],
-        "NAS_DELAY":             [None,          None,         "0.0"],
-        "SECURITY_DELAY":        [None,          None,         "0.0"],
-        "LATE_AIRCRAFT_DELAY":   [None,          None,         "0.0"],
-        "YEAR":                  ["2023",        "2023",       "2023"],
-        "MONTH":                 ["1",           "1",          "1"],
-        "DAY_OF_MONTH":          ["15",          "15",         "16"],
-        "DAY_OF_WEEK":           ["7",           "7",          "1"],
+        "FlightDate":                    ["2023-01-15", "2023-01-15", "2023-01-16"],
+        "IATA_CODE_Reporting_Airline":   ["AA",          "DL",         "UA"],
+        "Flight_Number_Reporting_Airline":["100",        "200",        "300"],
+        "Origin":                        ["JFK",         "LAX",        "ORD"],
+        "Dest":                          ["LAX",         "JFK",        "SFO"],
+        "CRSDepTime":                    ["0800",        "1200",       "1600"],
+        "DepTime":                       ["0815",        "1155",       "1630"],
+        "DepDelay":                      ["15.0",        "-5.0",       "30.0"],
+        "CRSArrTime":                    ["1100",        "2000",       "1900"],
+        "ArrTime":                       ["1120",        "1950",       "1945"],
+        "ArrDelay":                      ["20.0",        "-10.0",      "45.0"],
+        "Cancelled":                     ["0.0",         "0.0",        "0.0"],
+        "CancellationCode":              [None,          None,         None],
+        "Diverted":                      ["0.0",         "0.0",        "0.0"],
+        "CRSElapsedTime":                ["180.0",       "300.0",      "180.0"],
+        "ActualElapsedTime":             ["185.0",       "295.0",      "195.0"],
+        "AirTime":                       ["160.0",       "275.0",      "170.0"],
+        "Distance":                      ["2475.0",      "2475.0",     "1846.0"],
+        "CarrierDelay":                  [None,          None,         "45.0"],
+        "WeatherDelay":                  [None,          None,         "0.0"],
+        "NASDelay":                      [None,          None,         "0.0"],
+        "SecurityDelay":                 [None,          None,         "0.0"],
+        "LateAircraftDelay":             [None,          None,         "0.0"],
+        "Year":                          ["2023",        "2023",       "2023"],
+        "Month":                         ["1",           "1",          "1"],
+        "DayofMonth":                    ["15",          "15",         "16"],
+        "DayOfWeek":                     ["7",           "7",          "1"],
     })
 
 
@@ -127,7 +127,7 @@ class TestCastDataTypes:
 
     def test_invalid_dates_become_nat(self):
         df = pd.DataFrame({
-            "FL_DATE": ["2023-01-15", "not-a-date", "2023-13-01"],
+            "FlightDate": ["2023-01-15", "not-a-date", "2023-13-01"],
         })
         df = rename_columns(df)
         df = cast_data_types(df)
