@@ -28,9 +28,9 @@ from config.settings import PipelineConfig
 # ─────────────────────────────────────────
 
 REQUIRED_COLUMNS = [
-    "FL_DATE", "OP_UNIQUE_CARRIER", "OP_CARRIER_FL_NUM",
-    "ORIGIN", "DEST", "DEP_DELAY", "ARR_DELAY",
-    "CANCELLED", "DISTANCE",
+    "FlightDate", "IATA_CODE_Reporting_Airline", "Flight_Number_Reporting_Airline",
+    "Origin", "Dest", "DepDelay", "ArrDelay",
+    "Cancelled", "Distance",
 ]
 
 NUMERIC_COLUMNS = [
