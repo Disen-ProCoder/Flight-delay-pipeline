@@ -12,7 +12,7 @@ version: '3.8'
 # ============================================================
 
 x-airflow-common: &airflow-common
-  image: apache/airflow:2.8.0
+  image: apache/airflow:2.8.1-python3.11
   environment:
     &airflow-common-env
     AIRFLOW__CORE__EXECUTOR: LocalExecutor
@@ -21,18 +21,16 @@ x-airflow-common: &airflow-common
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
     AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
     AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth'
-    # Project environment variables
-    DB_HOST: postgres
+    # Warehouse DB — points to local PostgreSQL via Docker host bridge
+    DB_HOST: host.docker.internal
     DB_PORT: 5432
     DB_NAME: flight_warehouse
     DB_USER: pipeline_user
-    DB_PASSWORD: pipeline_pass
+    DB_PASSWORD: flightdb
     AVIATIONSTACK_API_KEY: ${AVIATIONSTACK_API_KEY}
     _PIP_ADDITIONAL_REQUIREMENTS: >-
       pandas==2.1.4
       psycopg2-binary==2.9.9
-      sqlalchemy==2.0.23
-      great-expectations==0.18.8
       requests==2.31.0
       loguru==0.7.2
       tqdm==4.66.1
@@ -63,7 +61,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./sql/schema:/docker-entrypoint-initdb.d  # Auto-run on first start
     ports:
-      - "5432:5432"
+      - "5433:5432"
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "pipeline_user"]
       interval: 10s
