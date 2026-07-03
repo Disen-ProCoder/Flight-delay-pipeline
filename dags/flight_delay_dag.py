@@ -191,14 +191,16 @@ def task_refresh_views(**context) -> None:
         "warehouse.mv_monthly_summary",
     ]
 
-    with engine.connect() as conn:
-        with conn.begin():
-            for view in views_to_refresh:
-                try:
-                    conn.execute(text(f"REFRESH MATERIALIZED VIEW CONCURRENTLY {view}"))
-                except Exception as e:
-                    # Views might not exist yet on first run — log but don't fail
-                    print(f"Could not refresh {view}: {e}")
+    # Each view refresh must be in its own transaction (PostgreSQL constraint).
+    # REFRESH MATERIALIZED VIEW CONCURRENTLY cannot run inside an explicit transaction.
+    for view in views_to_refresh:
+        try:
+            with engine.connect() as conn:
+                conn.execute(text(f"REFRESH MATERIALIZED VIEW CONCURRENTLY {view}"))
+                conn.commit()
+        except Exception as e:
+            # Views might not exist yet on first run — log but don't fail
+            print(f"Could not refresh {view}: {e}")
 
 
 # ─────────────────────────────────────────
