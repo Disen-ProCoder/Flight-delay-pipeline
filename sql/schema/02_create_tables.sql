@@ -152,6 +152,10 @@ CREATE TABLE IF NOT EXISTS warehouse.fact_flights_2023
     PARTITION OF warehouse.fact_flights FOR VALUES FROM (2023) TO (2024);
 CREATE TABLE IF NOT EXISTS warehouse.fact_flights_2024
     PARTITION OF warehouse.fact_flights FOR VALUES FROM (2024) TO (2025);
+CREATE TABLE IF NOT EXISTS warehouse.fact_flights_2025
+    PARTITION OF warehouse.fact_flights FOR VALUES FROM (2025) TO (2026);
+CREATE TABLE IF NOT EXISTS warehouse.fact_flights_2026
+    PARTITION OF warehouse.fact_flights FOR VALUES FROM (2026) TO (2027);
 
 
 -- ─────────────────────────────────────────
