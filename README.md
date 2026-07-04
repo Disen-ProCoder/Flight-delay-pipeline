@@ -1,6 +1,6 @@
 # Flight Delay Analysis Pipeline
 
-> An automated data engineering pipeline that ingests 7M+ rows of US flight data from the Bureau of Transportation Statistics (BTS), transforms it into a PostgreSQL data warehouse, and orchestrates nightly updates with Apache Airflow.
+> An automated data engineering pipeline that ingests 7M+ rows of US flight data from the Bureau of Transportation Statistics (BTS), transforms it into a PostgreSQL data warehouse, and orchestrates monthly updates with Apache Airflow.
 
 ---
 
@@ -22,7 +22,7 @@ BTS CSV Files (7M+ rows/year)
 [Load] → PostgreSQL staging → production warehouse
         │
         ▼
-[Orchestrate] → Apache Airflow DAG (nightly schedule)
+[Orchestrate] → Apache Airflow DAG (monthly schedule)
         │
         ▼
 [Monitor] → Logging, alerting, data quality reports
@@ -35,8 +35,8 @@ BTS CSV Files (7M+ rows/year)
 | Language | Python 3.11 | Industry standard for DE |
 | Orchestration | Apache Airflow 2.8 | Most-used workflow scheduler |
 | Database | PostgreSQL 15 | Production-grade RDBMS |
-| Transforms | Pandas + dbt | Data modelling best practice |
-| Data quality | Great Expectations | Industry-standard DQ framework |
+| Transforms | Pandas | Data cleaning and enrichment |
+| Data quality | Pandas checks | Lightweight expectation-style validation |
 | Containerisation | Docker + Docker Compose | Reproducible environments |
 | Version control | Git + GitHub | CI/CD integration |
 
