@@ -100,7 +100,7 @@ def cast_data_types(df: pd.DataFrame) -> pd.DataFrame:
     # Boolean flags (BTS stores as 0.0/1.0)
     for col in ["is_cancelled", "is_diverted"]:
         if col in df.columns:
-            df[col] = df[col].fillna(0).astype(bool)
+            df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0).astype(bool)
 
     # Integer time columns (HHMM format)
     for col in ["year", "month", "day_of_month", "day_of_week"]:

@@ -1,0 +1,32 @@
+{
+  "trained_at": "2026-07-06T10:06:19",
+  "rows_total": 97944,
+  "rows_train": 78355,
+  "rows_test": 19589,
+  "positive_rate": 0.22871232541043862,
+  "accuracy": 0.6200929092858237,
+  "precision": 0.31934618199560866,
+  "recall": 0.584375,
+  "f1": 0.41299889572487775,
+  "roc_auc": 0.6490338584263874,
+  "confusion_matrix": [
+    [
+      9529,
+      5580
+    ],
+    [
+      1862,
+      2618
+    ]
+  ],
+  "features": [
+    "carrier_code",
+    "origin_airport",
+    "dest_airport",
+    "month",
+    "day_of_week",
+    "scheduled_departure_hour",
+    "scheduled_arrival_hour",
+    "distance_miles"
+  ]
+}

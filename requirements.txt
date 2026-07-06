@@ -31,3 +31,7 @@ pytest-cov==4.1.0
 tqdm==4.66.1
 click==8.1.7
 pyyaml==6.0.1
+
+# Machine learning
+scikit-learn==1.4.2
+joblib==1.4.2
