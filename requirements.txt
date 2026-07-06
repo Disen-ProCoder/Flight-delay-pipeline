@@ -35,3 +35,6 @@ pyyaml==6.0.1
 # Machine learning
 scikit-learn==1.4.2
 joblib==1.4.2
+
+# Dashboard
+streamlit==1.36.0
